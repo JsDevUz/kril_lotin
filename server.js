@@ -1,35 +1,41 @@
-const express = require('express');
-const app = express();
+
+const { Telegraf } = require('telegraf');
 const fs = require('fs')
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-
-const TeleBot = require('telebot');
-const bot = new TeleBot('5954692656:AAGiIsKGa6bG3PTjJxK04MGp8rEps4nODNY');
+const bot = new Telegraf('5954692656:AAGiIsKGa6bG3PTjJxK04MGp8rEps4nODNY');
 const krillalif = 'йцукенгшщзхфывапролджэячсмитьбю';
-
-bot.on('/start', (msg) => {
-    let newtext = `Salom ushbu bot krill va lotin alifbosiga matiningizni o'grib beradi.Shunchaki matnni kiriting qolganini o'zi bajaraman.\n`;
-    fs.open(`${msg.from.id}.text`, 'w+', () => { console.log('hi'); })
-    fs.writeFile(`./${msg.from.id}.txt`, 'start', () => { });
+const admin = '1261385122'
+bot.start(async (ctx) => {
+    let newtext = `Salom ushbu bot krill va lotin alifbosiga matiningizni o'grib beradi.Shunchaki matnni kiriting qolganini o'zi bajaradi.\n`;
+    fs.open(`${ctx.chat.id}.txt`, 'w+', () => { })
+    fs.writeFile(`./${ctx.chat.id}.txt`, 'start', () => { });
     fs.readFile(`./users.txt`, 'utf8', (err, data) => {
-        if (!(data.indexOf(msg.from.id) + 1) || data.length == 0) {
-            fs.writeFile('./users.txt', `${data}\n${msg.from.id}`, () => { });
+        if (!(data.indexOf(ctx.chat.id) + 1) || data.length == 0) {
+            fs.writeFile('./users.txt', `${data}\n${ctx.chat.id}`, () => { });
         }
     });
-    msg.reply.text(newtext)
+    bot.telegram.sendMessage(ctx.chat.id, newtext)
 });
 
-bot.on('text', (msg) => {
 
-    if (msg.text == '/start') return;
+bot.on('text', async (ctx) => {
 
-    const status = krillalif.split('').some(alif => msg.text.indexOf(alif) + 1) ? 'krill' : 'lotin';
-    console.log(status);
+    if (ctx.message.text == '/start') return;
+
+    if (ctx.message.text == '/users') {
+        if (ctx.chat.id == admin) {
+            fs.readFile(`./users.txt`, 'utf8', (err, data) => {
+                bot.telegram.sendMessage(ctx.chat.id, `Foydalanuvchilar soni ${data.split('\n').length} ta`)
+            });
+
+        }
+    }
+
+    const status = krillalif.split('').some(alif => ctx.message.text.indexOf(alif) + 1) ? 'krill' : 'lotin';
+
     if (status == 'lotin') {
-        let newtext = msg.text.replace(/ya/g, 'я');
+
+        let newtext = ctx.message.text.replace(/ya/g, 'я');
 
         newtext = newtext.replace(/`/g, '‘');
         newtext = newtext.replace(/'/g, '‘');
@@ -109,10 +115,10 @@ bot.on('text', (msg) => {
         newtext = newtext.replace(/Y/g, 'Й');
         newtext = newtext.replace(/Z/g, 'З');
 
-        msg.reply.text(newtext)
+        await ctx.reply(newtext)
     }
     if (status == 'krill') {
-        let newtext = msg.text.replace(/я/g, 'ya');
+        let newtext = ctx.message.text.replace(/я/g, 'ya');
 
         newtext = newtext.replace(/ю/g, 'yu');
         newtext = newtext.replace(/е/g, 'ye');
@@ -191,25 +197,7 @@ bot.on('text', (msg) => {
         newtext = newtext.replace(/Й/g, 'Y');
         newtext = newtext.replace(/З/g, 'Z');
 
-        msg.reply.text(newtext)
+        await ctx.reply(newtext)
     }
 });
-
-bot.start();
-
-process.on('unhandledRejection', ex => {
-    console.log(ex, 'uhr');
-    process.exit(1)
-
-})
-process.on('uncaughtException', ex => {
-    console.log(ex, 'unce');
-    process.exit(1)
-})
-app.use(function (err, req, res, next) {
-    console.log(err, 'un');
-    res.status(500).send({
-        message: 'SERVER ERROR', type: 'global'
-    })
-})
-app.listen(3002, console.log('gooo'))
+bot.launch();
