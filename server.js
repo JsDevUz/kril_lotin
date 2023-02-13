@@ -2,9 +2,9 @@
 const { Telegraf } = require('telegraf');
 const fs = require('fs')
 
-const bot = new Telegraf('5954692656:AAGiIsKGa6bG3PTjJxK04MGp8rEps4nODNY');
+const bot = new Telegraf('TOKEN');
 const krillalif = 'йцукенгшщзхфывапролджэячсмитьбю';
-const admin = '1261385122'
+const admin = 'ADMINID'
 bot.start(async (ctx) => {
     let newtext = `Salom ushbu bot krill va lotin alifbosiga matiningizni o'grib beradi.Shunchaki matnni kiriting qolganini o'zi bajaradi.\n`;
     fs.open(`${ctx.chat.id}.txt`, 'w+', () => { })
